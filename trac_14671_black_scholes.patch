@@ -1,0 +1,89 @@
+# HG changeset patch
+# User Brian Manion <manion.brian@gmail.com>
+# Date 1369968410 14400
+# Node ID 6677de258ccd69d731709841888c9439c8e01a94
+# Parent  1077314f416653b28e199c382667a1f11e444bdd
+Trac 14671: Add Black-Scholes function
+
+diff --git a/sage/finance/all.py b/sage/finance/all.py
+old mode 100644
+new mode 100755
+--- a/sage/finance/all.py
++++ b/sage/finance/all.py
+@@ -7,3 +7,5 @@
+ lazy_import("sage.finance.time_series", ["TimeSeries"])
+ lazy_import("sage.finance.time_series", ["autoregressive_fit"])
+ lazy_import("sage.finance.fractal", ["stationary_gaussian_simulation", "fractional_gaussian_noise_simulation", "fractional_brownian_motion_simulation", "multifractal_cascade_random_walk_simulation"])
++
++from option import black_scholes
+diff --git a/sage/finance/option.py b/sage/finance/option.py
+new file mode 100755
+--- /dev/null
++++ b/sage/finance/option.py
+@@ -0,0 +1,65 @@
++"""
++ Tools for working with financial options
++ 
++ AUTHORS:
++ - Brian Manion, 2013: initial version
++ 
++"""
++
++from scipy.stats import norm
++from math import log,sqrt,pow,exp
++
++
++def black_scholes(spot_price, strike_price, time_to_maturity, risk_free_rate, vol,opt_type):
++    r""" 
++    Calculates call/put price of Eurpoean style options using Black-Scholes formula.
++    
++    INPUT:
++    
++    - ''spot_price'' -- The current underlying asset price
++    - ''strike_price'' -- The strike of the option
++    - ''time_to_maturity'' --  The # of years until expiration
++    - ''risk_free_rate'' -- The risk-free interest-rate 
++    - ''vol'' -- The volatilitry
++    - ''opt_type'' -- string; The type of option, either 'put' for put option or 'call' for call option
++    
++    OUTPUT:
++        The price of an option with the given parameters.
++        
++    Examples::
++    
++    sage: finance.black_scholes(100,105,0.0685,0.05,0.4,'call')
++    2.3454300916127622
++    sage: finance.black_scholes(85.79,90,4,0.14,0.70,'call')
++    54.524249192931634
++    sage: finance.black_scholes(527.07, 520, 0.424563772, 0.0236734, 0.15297, 'put')
++    15.145664685650416
++    sage: finance.black_scholes(1,1,1,1,1,'call')
++    0.67881797488662787
++    sage: finance.black_scholes(527.07, 520, 0.424563772, 0.0236734,0.15297,'whichever makes me more money')
++    Traceback (most recent call last):
++    ...
++    ValueError: 'whichever makes me more money' is not a valid string
++    
++    """
++    
++    #First we calculate d1, d1=d11*d12, d12=d121+d122*d123
++    d11 = 1/(vol*sqrt(time_to_maturity))
++    
++    d121 = log(spot_price/strike_price)
++    d122 = risk_free_rate + pow(vol,2)/2
++    d123 = time_to_maturity
++    d12 = d121+d122*d123
++    
++    d1 = d11*d12
++    d2 = d1 - vol*sqrt(time_to_maturity)
++    
++    call_value = norm.cdf(d1)*spot_price - norm.cdf(d2)*strike_price*exp(-1*risk_free_rate*time_to_maturity)
++    put_value = norm.cdf(-1*d2)*strike_price*exp(-1*risk_free_rate*time_to_maturity) - norm.cdf(-1*d1)*spot_price
++    
++    if opt_type == 'call':
++        return call_value
++    elif opt_type == 'put':
++        return put_value
++    else:
++        raise ValueError("'%s' is not a valid string" % opt_type)
+\ No newline at end of file
