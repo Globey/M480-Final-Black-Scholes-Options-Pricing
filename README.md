@@ -2,7 +2,7 @@ M480-Final-Black-Scholes-Options-Pricing
 ========================================
 
 **Description:** <br>
- I have implemented the Black-Scholes options pricing formula in Sage. That includes creating a patch and  creating a new Trac ticket <a href="http://trac.sagemath.org/sage_trac/ticket/14671">#14671</a>. I am also exploring a similar Trac  ticket <a href="http://trac.sagemath.org/sage_trac/ticket/4083">#4803</a> in support of implementing an Option object with Black-Scholes Functionality . I also discuss some future goals for options and Black-Scholes
+ I am implementing the Black-Scholes options pricing formula in Sage. That includes creating a patch and  creating a new Trac ticket <a href="http://trac.sagemath.org/sage_trac/ticket/14671">#14671</a>.  I also discuss some future goals for Black-Scholes in Sage.
 
 <br>
 
